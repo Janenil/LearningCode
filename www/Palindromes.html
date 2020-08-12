@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>回文</title>
+  </head>
+  <body>
+    <div class="wrapper">
+      <div>
+        请输入你想要判断的：
+        <input id="input" />
+        <button onclick="isArrayPalindromes()">判断1</button>
+        <button onclick="isForPalindromes()">判断2</button>
+      </div>
+
+      <div>result_array：<span id="result_array"></span></div>
+      <div>result_for：<span id="result_for"></span></div>
+    </div>
+  </body>
+  <style>
+    .wrapper {
+      width: 600px;
+      height: 400px;
+      margin: 50px auto;
+      background-color: beige;
+      padding: 30px;
+    }
+  </style>
+  <script>
+    function isArrayPalindromes() {
+      let result = document.getElementById("result_array");
+      let text = document.getElementById("input").value;
+      const _text = text.split("").reverse().join("");
+      result.innerText = _text === text ? "是" : "否";
+    }
+    function isForPalindromes() {
+      let text = document.getElementById("input").value;
+      let result = document.getElementById("result_for");
+
+      let i = 0;
+      let index = text.length - 1;
+      let flag = true;
+      while (i < index) {
+        if (text[i] !== text[index]) {
+          flag = false;
+        }
+        i++;
+        index--;
+      }
+      result.innerText = flag ? "是" : "否";
+    }
+  </script>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>高阶函数</title>
+  </head>
+  <body>
+    高阶函数
+  </body>
+  <script>
+    var arr = [
+      [1, 2, 2],
+      [3, 4, 5, 5],
+      [6, 7, 8, 9, [11, 12, [12, 13, [14]]]],
+      10,
+    ];
+    function spreadArr(arr, target = []) {
+      console.log(arr, Array.isArray(arr));
+      let _target = JSON.parse(JSON.stringify(target));
+      let flag = false;
+      if (Array.isArray(arr)) {
+        arr.map((item) => {
+          if (Array.isArray(item)) {
+            // spreadArr(arr, _target);
+            _target.push(...item);
+          } else {
+            _target.push(item);
+          }
+        });
+        _target.forEach((_item) => {
+          if (Array.isArray(_item)) {
+            flag = true;
+          }
+        });
+        if (flag) {
+          return spreadArr(_target, []);
+        } else {
+          return _target;
+        }
+      }
+    }
+    let _arr = spreadArr(arr);
+    console.log("_arr", _arr);
+  </script>
+</html>

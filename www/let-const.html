@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>作用域</title>
+  </head>
+  <body>
+    <div class="wrapper">
+      <h2>作用域</h2>
+      <span>代码运行时，某些特定部分的变量、函数、对象的可访问性</span><br />
+      <span>作用域决定了变量和函数的可访问范围</span><br />
+      <span>作用域控制着变量与函数的可见性和生命周期</span><br />
+
+      <strong>
+        ??可不可以理解为：作用域就是一个区域，这个区域决定了，哪些变量和函数是可访问的，哪些不可访问
+      </strong>
+
+      <ul>
+        <li>
+          全局作用域
+        </li>
+        <div></div>
+
+        <li>
+          函数作用域
+        </li>
+        <div>
+          定义在函数中的变量就在函数作用域中。并且函数在每次调用时都有一个不同的作用域。这意味着同名变量可以用在不同的函数中。因为这些变量绑定在不同的函数中，拥有不同作用域，彼此之间不能访问。
+        </div>
+
+        <li>
+          块级作用域
+        </li>
+        <div>
+          ES6新增了let和const命令，可以用来创建块级作用域变量，使用let命令声明的变量只在let命令所在代码块内有效。
+        </div>
+        <span>if{} 如果说，{}包裹着的是块级作用域，那么if是吗</span
+        ><br />
+        <span>
+          是花括号让其中的变量拥有的块级作用域还是，let，const让花括号变成块级作用域
+        </span>
+
+        <div>TDZ（暂时性死区）</div>
+
+        <div>变量提升：是提升到声明他的作用域顶端</div>
+        <div>函数外部，无法访问函数内部的变量</div>
+      </ul>
+
+      <h2>闭包</h2>
+      <ul>
+        <li>1.闭包可以访问当前函数以外的变量</li>
+        <li>2.即使外部函数已返回，闭包仍能访问外部函数定义的变量</li>
+        <li>3.闭包可以更新外部变量的值</li>
+      </ul>
+    </div>
+  </body>
+  <style>
+    .wrapper {
+      width: 500px;
+      min-height: 400px;
+      background-color: #f5f5f5;
+      margin: 0 auto;
+      padding: 50px;
+    }
+    span {
+      display: inline-block;
+      margin: 5px 0;
+      color: #666;
+      background-color: #e6e6e6;
+    }
+    ul {
+      padding: 0;
+    }
+    li {
+      list-style: none;
+      line-height: 30px;
+    }
+  </style>
+  <script>
+    var a = 300;
+    let i = 20;
+    let j = 50;
+    {
+      console.log("1:", j);
+      let i = 10;
+      console.log("1:");
+    }
+    {
+      console.log("2:", a);
+      let j = 100;
+      console.log("2:", i);
+    }
+    console.log("hhhhh", hhhhhh);
+    if (true) {
+      var hhhhhh = 222;
+      let i = 222;
+      console.log(i);
+    }
+    for (var index = 0; index < 5; index++) {
+      (function (number) {
+        console.log(number);
+      })(index + 10);
+    }
+    var funArr = [];
+    for (var index = 0; index < 10; index++) {
+      var func = function () {
+        console.log(index);
+      };
+      funArr.push(func);
+    }
+    funArr.forEach(function (func) {
+      func();
+    });
+    class TClass {}
+    function testUpdate() {
+      let count = "123";
+      return function getVal(val) {
+        count = val;
+        console.log(count);
+      };
+    }
+
+    var test = testUpdate();
+    test("2222");
+    test("21111");
+
+    function testF() {
+      var ttt = "1111";
+    }
+    testF();
+    console.log("全局:", i, window, TClass);
+
+    var tmp = new Date(); // 定义全局变量
+    console.log(tmp); // 打印日期
+    // console.log("ceshi", ceshi);
+    // console.log("test1", test1);
+
+    function f() {
+      console.log("tmp", tmp);
+      console.log("ceshi", ceshi);
+      console.log("test1", test1);
+      if (true) {
+        let tmp1 = "hello";
+        var test1 = "123";
+        if (true) {
+          var ceshi = "123";
+        }
+      }
+      //   for (let i = 0; i < 5; i++) {
+      //     console.log("test", test1);
+
+      //     var tmp = "2222";
+      //     let test1 = "123";
+      //   }
+    }
+    f();
+  </script>
+</html>

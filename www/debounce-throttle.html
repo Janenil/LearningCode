@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>防抖-节流</title>
+  </head>
+  <style>
+    .content {
+      width: 700px;
+      margin: 50px auto;
+      background-color: lemonchiffon;
+      padding: 50px;
+    }
+    span {
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
+  <body>
+    <div class="content">
+      <h3>doMyself-防抖-debounce</h3>
+      输入：<input id="me-debounce" />
+      <br />
+      <br />
+      防抖：
+      <div id="meDebounceText"></div>
+      <br />
+      <br />
+      <h3>doMyself-节流-throttle</h3>
+      输入：<input id="me-throttle" />
+      <br />
+      <br />
+      节流：
+      <div id="meThrottleText"></div>
+      <br />
+      <br />
+      <h3>doMyself-优化版节流-throttle</h3>
+      输入：<input id="me-optimizeThrottle" />
+      <br />
+      <br />
+      优化版节流:
+      <div id="meOptimizeThrottleText"></div>
+      <br />
+      <br />
+      <h3>防抖-debounce</h3>
+      <p>
+        最后一次触发说了算，在某段时间内，不管你触发了多少次回调，我都只认最后一次，
+        <br />
+        每一次触发，都要清空计时器，重新计时
+      </p>
+      <span
+        >eg：假如设置了500ms，每次触发，都会把计时器清0，直到最后一次触发后的500ms内，再也没有人触发了，执行回调函数</span
+      >
+      <br />
+      <br />
+      输入：<input type="text" id="debounce" />
+      <br />
+      <br />
+      防抖：
+      <div v-bind="debounce-value" id="debounceText"></div>
+
+      <h3>节流-throttle</h3>
+      <p>
+        某段时间内，不管触发多少次，都只认第一次，在计时结束时给予响应，
+        <br />第一次触发开始计时，到时间了触发回调
+      </p>
+      <span
+        >eg：假如设置了500ms，当第一次触发，开始计时，计时500ms，到500ms时，触发回调函数</span
+      >
+      <br />
+      <br />
+      输入：<input type="text" id="throttle" />
+      <br />
+      <br />
+      节流：
+      <div v-bind="throttle-value" id="throttleText"></div>
+    </div>
+  </body>
+
+  <script>
+    function optimizeThrottle(fn, delay) {
+      let timer = null,
+        last = 0;
+      return function () {
+        let context = this;
+        let args = arguments;
+        let now = +new Date();
+        // if (timer) {
+        //   clearTimeout(timer);
+        // }
+        // timer = setTimeout(() => {
+        //   fn.apply(context, args);
+        // });
+        if (now - last < delay) {
+          clearTimeout(timer);
+          timer = setTimeout(() => {
+            last = now;
+            fn.apply(context, args);
+          }, delay);
+        } else {
+          last = now;
+          fn.apply(context, args);
+        }
+      };
+    }
+    function MDebounce(fn, delay) {
+      //   console.log(fn, delay);
+      let timer = null;
+      return function () {
+        const context = this;
+        const args = arguments;
+        // console.log("context", context);
+        // console.log("args", args);
+        if (timer) {
+          clearTimeout(timer);
+        }
+        timer = setTimeout(() => {
+          fn.apply(context, arguments);
+        }, delay);
+      };
+    }
+
+    // 这个有问题吧，必须要一直触发，如果最后一次触发now - last >= delay不成立的话，就不会调用回调函数了
+
+    function MThrottle(fn, delay) {
+      let last = 0;
+
+      return function () {
+        const args = arguments;
+        const context = this;
+        let now = +new Date();
+        if (now - last >= delay) {
+          last = now;
+          fn.apply(context, arguments);
+        }
+      };
+    }
+
+    function onSearch(e) {
+      console.log("search", e.target.value);
+      document.getElementById("meDebounceText").innerText = e.target.value;
+    }
+    function onSearch1(e) {
+      console.log("search", e.target.value);
+      document.getElementById("meThrottleText").innerText = e.target.value;
+    }
+
+    function onSearch2(e) {
+      console.log("search", e.target.value);
+      document.getElementById("meOptimizeThrottleText").innerText =
+        e.target.value;
+    }
+
+    document
+      .getElementById("me-debounce")
+      .addEventListener("input", MDebounce(onSearch, 1000));
+
+    document
+      .getElementById("me-throttle")
+      .addEventListener("input", MThrottle(onSearch1, 2000));
+
+    document
+      .getElementById("me-optimizeThrottle")
+      .addEventListener("input", optimizeThrottle(onSearch2, 2000));
+
+    let debounceText = document.getElementById("debounceText");
+    let throttleText = document.getElementById("throttleText");
+
+    document
+      .getElementById("debounce")
+      .addEventListener("input", debounce(onChangeDebounce.bind(this), 1000));
+
+    function onChangeDebounce(e) {
+      debounceText.innerText = e.target.value;
+    }
+
+    function debounce(func, delay) {
+      let timer = null;
+
+      return function () {
+        let context = this;
+        let args = arguments;
+        if (timer) {
+          clearTimeout(timer);
+        }
+        timer = setTimeout(() => {
+          func.apply(context, args);
+        }, delay);
+      };
+    }
+    function throttle(func, delay) {
+      // console.log(arguments)
+      let last = 0,
+        timer = null;
+      return function () {
+        let context = this;
+        let args = arguments;
+        let now = +new Date();
+        if (now - last < delay) {
+          clearTimeout(timer);
+          timer = setTimeout(function () {
+            last = now;
+            func.apply(context, args);
+          }, delay);
+        } else {
+          last = now;
+          func.apply(context, args);
+        }
+      };
+    }
+
+    function onChangeThrottle(e) {
+      console.log(e);
+      throttleText.innerText = e.target.value;
+    }
+
+    document
+      .getElementById("throttle")
+      .addEventListener("input", throttle(onChangeThrottle.bind(this), 1000));
+  </script>
+</html>

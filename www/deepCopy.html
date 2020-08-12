@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>深拷贝</title>
+    <style>
+      .wrapper {
+        width: 600px;
+        min-height: 400px;
+        background-color: #f5f5f5;
+        margin: 50px auto;
+        padding: 20px;
+      }
+      span {
+        font-size: 14px;
+        display: inline-block;
+        background-color: #e6e6e6;
+        color: #666;
+        padding: 3px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrapper">
+      <p>1.判断对象： typeof</p>
+      <p>2.判断属性是否为自身属性：hasOwnProperty</p>
+      <p>3.注意：null</p>
+      <p>4.判断数组：Array.isArray</p>
+      <p>5.递归对象、数组</p>
+
+      <h2>浅拷贝：</h2>
+      <p>Object.assign()</p>
+
+      <h2>深拷贝：</h2>
+      <p>JSON.parse(JSON.stringify())</p>
+      <span>会出现循环引用，爆栈问题</span>
+    </div>
+  </body>
+  <script>
+    let a = {
+      name: "muyiy",
+      book: {
+        title: "You Don't Know JS",
+        price: "45",
+      },
+    };
+    a.book.title = "change something";
+    let b = Object.assign({}, a);
+
+    console.log("b", b);
+    var obj = {
+      str: "2222",
+      arr: [1, 2, 3, 4],
+      num: 1234,
+      _obj: {
+        name: "hahah",
+      },
+    };
+    var arr = [3, 3, 1, 1, 1];
+    function isObject(obj) {
+      return typeof obj === "object" && obj != null;
+    }
+    function shallowClone(source) {
+      let target = {};
+      for (let key in source) {
+        if ((Object.prototype.hasOwnProperty, call(source, key))) {
+          target[key] = source[key];
+        }
+      }
+      return target;
+    }
+    // ES6 WeakMap
+    function deepClone(source, hash = new WeakMap()) {
+      if (!isObject(source)) return source; // 非对象返回自身
+      if (hash.has(source)) return hash.get(source);
+
+      let target = Array.isArray(source) ? [] : {};
+      hash.set(source, target);
+
+      for (let key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          if (isObject(source[key])) {
+            target[key] = deepClone(source[key], hash);
+          } else {
+            target[key] = source[key];
+          }
+        }
+      }
+      return target;
+    }
+
+    // ES5 数组
+    function deepClone1(source, uniqueList) {
+      if (!isObject(source)) return source; // 非对象返回自身
+      //   if (hash.has(source)) return hash.get(source);
+      if (!uniqueList) uniqueList = [];
+
+      let target = Array.isArray(source) ? [] : {};
+
+      var uniqueData = find(uniqueList, source);
+      if (uniqueData) {
+        return uniqueData.target;
+      }
+
+      uniqueList.push({
+        source: source,
+        target: target,
+      });
+      //   hash.set(source, target);
+
+      for (let key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          if (isObject(source[key])) {
+            target[key] = deepClone(source[key], uniqueList);
+          } else {
+            target[key] = source[key];
+          }
+        }
+      }
+      return target;
+    }
+
+    function find(list, item) {
+      for (let i = 0; i < list.length; i++) {
+        if (list[i].source === item) {
+          return list[i];
+        }
+      }
+      return null;
+    }
+
+    const _obj = deepClone(obj);
+    _obj.str = "hahahhah";
+    console.log(obj);
+    console.log(_obj);
+    const _arr = deepClone(arr);
+    console.log(arr);
+    console.log(_arr);
+  </script>
+</html>

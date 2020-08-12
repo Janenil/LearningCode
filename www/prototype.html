@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>原型</title>
+  </head>
+  <body>
+    原型、原型链、继承
+  </body>
+
+  <script>
+    // var obj = new Object()
+    // console.log('obj', obj.__proto__)
+
+    // var str = new String()
+    // console.log('str', str.__proto__)
+
+    // var arr = new Array()
+    // Array.prototype.something = '123'
+    // console.log('arr', arr.__proto__)
+
+    // var fn = new Function()
+    // console.log('fn', fn.__proto__)
+    // var num = new Number()
+    // console.log('num', num.__proto__)
+
+    // class Point {
+    //     constructor(x, y) {
+    //         this.x = x;
+    //         this.y = y;
+    //     }
+
+    //     toString() {
+    //         return '(' + this.x + ', ' + this.y + ')';
+    //     }
+    // }
+    // const _p = new Point(5,6)
+    // console.log(_p)
+
+    // function Point_x(x, y) {
+    //     this.x = x;
+    //     this.y = y;
+    // }
+    // Point_x.prototype.toString = function () {
+    //     return '(' + this.x + ', ' + this.y + ')';
+    // }
+    // const _p_x = new Point_x(5,6)
+    // console.log(_p_x)
+
+    // function ab() {
+    //     console.log('------')
+    // }
+    // const a = new ab()
+    // console.log(a.__proto__)
+
+    console.log("------普通--------");
+
+    function One() {
+      this.colors = [1, 2, 3];
+      this.a = () => {
+        console.log("函数");
+      };
+    }
+
+    function One_son() {
+      this.a = "123";
+    }
+
+    One_son.prototype = new One();
+    var _one_son = new One_son();
+    var _one_son1 = new One_son();
+    console.log(_one_son, _one_son.colors.push(2), _one_son.colors);
+    console.log(_one_son1, _one_son1.colors);
+
+    console.log("------经典继承（构造函数继承）--------");
+
+    // 理论上，也是可以继承方法的吧，只不过是要找两级，先找Two_son，在网上找Two
+    // 这种方式，属性都是挂载在实例上的，而不是父级上
+    // 因为没有设置原型链吧，虽然，this指向了Two，但是原型链网上找就是Funtion了
+    function Two(name) {
+      this.colors = [1, 2, 3];
+      this.name = name;
+      this.a = () => {
+        console.log("函数");
+      };
+    }
+
+    function Two_son(name, age) {
+      Two.call(this, name);
+      this.age = age;
+      this.b = () => {
+        console.log("函数b");
+      };
+    }
+
+    var _two_son = new Two_son(1, 5);
+    var _two_son1 = new Two_son(2, 1);
+
+    console.log(_two_son, _two_son.colors.push(2), _two_son.colors);
+    console.log(_two_son1, _two_son1.colors);
+
+    console.log("------组合继承(伪经典继承)--------");
+    // 使用构造函数，实现对实例属性的继承, 每个实例的属性都是私有的，别的实例改动不会影响
+    // 使用原型链实现对原型属性和方法的继承？？，使用原型链定义方法，属性，共用属性，方法
+
+    function Three(name) {
+      this.name = name;
+      this.colors = [3, 3, 3];
+      this.a = () => {
+        console.log("函数");
+      };
+    }
+
+    function Three_son(name, age) {
+      Three.call(this, name);
+      this.age = age;
+    }
+
+    Three_son.prototype = new Three();
+    Three_son.prototype.sayHello = () => {
+      console.log("sayhello");
+    };
+    Three_son.prototype._string = "------";
+    var _three_son = new Three_son(2, 3);
+    var _three_son1 = new Three_son(4, 5);
+
+    console.log(_three_son, _three_son.colors.push(2), _three_son.colors);
+    console.log(_three_son1, _three_son1.colors);
+
+    console.log("------原型继承--------");
+
+    // 输入一个对象，创建一个空实例，将实例原型链指向传入的对象
+    // 引用类型的值，不同实例共享数据，某个实例更改的话，其他实例也会同步
+    function Four(obj) {
+      function _f() {}
+      _f.prototype = obj;
+      return new _f();
+    }
+
+    var person = {
+      _arr: [1, 2, 3],
+    };
+
+    var _four_son = Four(person);
+    _four_son._arr.push("-");
+    _four_son.a = "123";
+    _four_son.b = "000";
+
+    var _four_son1 = Four(person);
+    _four_son1._arr.push("--");
+    _four_son1.a = "111";
+    _four_son1.b = "222";
+
+    console.log(_four_son);
+    console.log(_four_son1);
+
+    console.log("------寄生式继承--------");
+    // 这种方法，可以定义共用方法
+    // 这种方法，如果传入的是同个对象，原型链上的属性还是会被互相影响
+    // 不能函数复用而降低效率？
+    var person = {
+      _arr: [1, 2, 3],
+    };
+    var person1 = {
+      str: "-----",
+      _arr: [1, 2, 3],
+    };
+    function Five(origin) {
+      var obj = Four(origin);
+      obj.sayHi = () => {
+        console.log("hi");
+      };
+      return obj;
+    }
+    let _five_son = Five(person);
+    let _five_son2 = Five(person);
+    let _five_son1 = Five(person1);
+    _five_son._arr.push("-");
+    _five_son1._arr.push("---");
+
+    console.log(_five_son);
+    console.log(_five_son1);
+    console.log(_five_son2);
+
+    console.log("------寄生组合继承1--------");
+    function Six(subType, superType) {
+      var prototype = Four(superType.prototype);
+      prototype.construct = subType;
+      subType.prototype = prototype;
+    }
+
+    function SuperType(name) {
+      this.name = name;
+      this.colors = ["pink", "blue", "green"];
+      this.a = () => {
+        console.log("函数");
+      };
+    }
+    function SuberType(name, age) {
+      SuperType.call(this, name);
+      this.age = age;
+    }
+
+    Six(SuberType, SuperType);
+    SuberType.prototype.data = "123";
+
+    var six_son = new SuberType(2, 5);
+    var six_son1 = new SuberType(4, 5);
+
+    console.log(six_son);
+    console.log(six_son1);
+
+    console.log("------寄生组合继承2--------");
+
+    function clonePrototype(Super, Suber) {
+      var prototype = Object.create(Super.prototype);
+      prototype.constructor = Suber;
+      Suber.prototype = prototype;
+    }
+
+    function Super(name) {
+      this.name = name;
+      this.like = ["sing", "dance", "rap", "basketball"];
+    }
+    Super.prototype.sayName = function () {
+      console.log(this.name);
+    };
+
+    function Suber(name, age) {
+      Super.call(this, name); //  继承属性
+      this.age = age;
+    }
+    clonePrototype(Super, Suber);
+    Suber.prototype.sayAge = function () {
+      console.log(this.age);
+    };
+
+    var sub1 = new Suber("sss", 45);
+    console.log(sub1, sub1.name);
+    sub1.sayName();
+    sub1.sayAge();
+
+    console.log("------construct如果不指向构造函数会怎么样--------");
+    function Dog(name) {
+      this.name = name;
+      this.animal = "dog";
+    }
+    function Dogs(name) {
+      this.name = name + name;
+      this.animal = "doggy";
+    }
+
+    function Cat(name) {
+      Dog.call(this, name);
+    }
+    Cat.prototype = Dogs.prototype;
+    var _cat = new Cat("aaaaa");
+
+    console.log(_cat);
+  </script>
+</html>

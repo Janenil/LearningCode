@@ -1,0 +1,184 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>双向绑定</title>
+</head>
+<body>
+    <div class="content">
+        <h2>vue2.0 Object.defineProperty</h2>
+        <button id="button">修改input的值</button>
+        <button id="button1">修改input1的值</button>
+        <p>
+            input:
+            <input type="text" id="input" />
+        </p>
+        <p>
+            input1:
+            <input type="text" id="input1" />
+        </p>
+        <p>input: <span id="text"></span></p>
+        <p>input1: <span id="text1"></span></p>
+        <p>input<span id="text2"></span></p>
+
+        <p>input1: <span id="text3"></span></p>
+        <p>input: <span id="text4"></span></p>
+        <p>input1: <span id="text5"></span></p>
+    </div>
+    <div class="content">
+        <h2>vue3.0 Proxy</h2>
+        <button id="button_proxy">修改input_proxy的值</button>
+        <button id="button1_proxy">修改input1_proxy的值</button>
+        <p>
+            input_proxy:
+            <input type="text" id="input_proxy" />
+        </p>
+        <p>
+            input1_proxy:
+            <input type="text" id="input1_proxy" />
+        </p>
+
+        <p>input_proxy: <span my-bind="test" id="text_proxy"></span></p>
+        <p>input1_proxy: <span my-bind="any" id="text_proxy1"></span></p>
+
+        <p>input_proxy: <span my-bind="test" id="text_proxy2"></span></p>
+        <p>input1_proxy: <span my-bind="any" id="text_proxy3"></span></p>
+    </div>
+</body>
+</html>
+
+<script>
+    // var Data = {}
+    // let txt = null
+    var Dep = {
+        Person: ['text', 'text2', 'text4'],
+        Person1: ['text1', 'text3', 'text5'],
+    }
+    var Person = {}
+    var Person1 = {}
+    var name = null
+    var name1 = null
+    function change(key, value) {
+        Dep[key].forEach(element => {
+            document.getElementById(element).innerText = value
+        });
+    }
+
+    Object.defineProperty(Person, 'name', {
+        set(value) {
+            name = value
+            change('Person', value)
+        },
+        get: function () {
+            return name
+        },
+    })
+    
+    Object.defineProperty(Person1, 'name1', {
+        set(value) {
+            // text.innerHTML = value
+            name1 = value
+            change('Person1', value)
+        },
+        get: function () {
+            return name1
+        },
+    })
+    // input.ad d = function(e){
+    //     Person.text = e.target.value
+    // }
+
+    const input = document.getElementById('input')
+    const input1 = document.getElementById('input1')
+    const button = document.getElementById('button')
+    const button1 = document.getElementById('button1')
+    input.addEventListener('input', function(e) {
+        Person.name = e.target.value
+        // text.innerText = Person.name
+    })
+    input1.addEventListener('input', function(e) {
+        Person1.name1 = e.target.value
+        // text.innerText = Person.name
+    })
+    button.addEventListener('click', function(e) {
+        input.value = 'nothing'
+        Person.name = 'nothing'
+    })
+    button1.addEventListener('click', function(e) {
+        input1.value = 'everything'
+        Person1.name1 = 'everything'
+    })
+    // var Person = {}
+    // var name = null
+    // Object.defineProperty(Person, 'name', {
+    //     get: function () {
+    //         return name
+    //     },
+    //     set: function (newV) {
+    //         name = newV
+    //     }
+    // })
+    
+    // let p = document.getElementById('text')
+    // let ipt = document.getElementById('input')
+    // ipt.addEventListener('input', function (e) {
+    //     Person.name = e.target.value
+    //     p.innerText = Person.name
+    // })
+</script>
+
+
+<script>
+    const bindingElements = [...document.querySelectorAll('[my-bind]')]
+    let viewModel = {};
+    viewModel = new Proxy(viewModel, {
+    set(obj, prop, value) {
+        if (obj[prop] !== value) {
+            obj[prop] = value;
+            // console.log(`${prop} 属性被改为 ${value}`);
+            bindingElements.forEach(el => {
+                const expression = el.getAttribute('my-bind');
+                if (expression === prop) {
+                    el.textContent = value
+                }
+            })
+        }
+        return true;
+    }
+    });
+    viewModel.test = 1
+    viewModel.any = 11222
+
+
+    const input_proxy = document.getElementById('input_proxy')
+    const input1_proxy = document.getElementById('input1_proxy')
+    const button_proxy = document.getElementById('button_proxy')
+    const button1_proxy = document.getElementById('button1_proxy')
+    input_proxy.addEventListener('input', function(e) {
+        viewModel.test = e.target.value
+    })
+    input1_proxy.addEventListener('input', function(e) {
+        viewModel.any = e.target.value
+    })
+    button_proxy.addEventListener('click', function(e) {
+        input_proxy.value = 'nothing'
+        viewModel.test = 'nothing'
+    })
+    button1_proxy.addEventListener('click', function(e) {
+        input1_proxy.value = 'everything'
+        viewModel.any = 'everything'
+    })
+</script>
+<style>
+    body {
+        width: 100%;
+        height: 100%;
+    }
+    .content {
+        width: 500px;
+        height: 500px;
+        margin: 50px auto;
+    }
+</style>

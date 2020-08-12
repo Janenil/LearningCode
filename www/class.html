@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    class实现
+  </body>
+  <script>
+    class Father {
+      constructor(name, age) {
+        this.name = name;
+        this.age = age;
+      }
+      // 私有
+      static laugh() {
+        console.log("laugh");
+      }
+
+      speak() {
+        console.log("speak");
+      }
+    }
+    // Father.speak();
+    Father.laugh();
+    Father.prototype.speak();
+    var f = new Father("xixi", 50);
+    console.log(f);
+
+    var FatherCopy = (function () {
+      function FatherCopy(name, age) {
+        this.name = name;
+        this.age = age;
+      }
+      FatherCopy.laugh = () => {
+        console.log("laugh");
+      };
+
+      FatherCopy.prototype.speak = () => {
+        console.log("copy-speak");
+      };
+
+      return FatherCopy;
+    })();
+    // function FatherCopy(name, age) {
+    //   this.name = name;
+    //   this.age = age;
+    //   this.laugh = () => {
+    //     console.log("laugh");
+    //   };
+    // }
+    // FatherCopy.prototype.speak = () => {
+    //   console.log("copy-speak");
+    // };
+
+    // console.log(FatherCopy);
+
+    FatherCopy.laugh();
+    FatherCopy.prototype.speak();
+    var fc = new FatherCopy("xixi", 50);
+    console.log(fc);
+    fc.speak();
+
+    function _defineProperties(target, props) {
+      for (var i = 0; i < props.length; i++) {
+        var descriptor = props[i];
+        descriptor.enumerable = descriptor.enumerable || false;
+        descriptor.configurable = true;
+        if ("value" in descriptor) descriptor.writable = true;
+        Object.defineProperty(target, descriptor.key, descriptor);
+      }
+    }
+    function _createClass(Constructor, protoProps, staticProps) {
+      if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+      if (staticProps) _defineProperties(Constructor, staticProps);
+    }
+    var CopyFather = (function () {
+      function CopyFather(name, age) {
+        this.name = name;
+        this.age = age;
+      }
+      _createClass(
+        CopyFather,
+        [
+          {
+            key: "speak",
+            value: function () {
+              console.log("speak");
+            },
+          },
+        ],
+        [
+          {
+            key: "laugh",
+            value: function () {
+              console.log("laugh");
+            },
+          },
+        ]
+      );
+      return CopyFather;
+    })();
+    var cf = new CopyFather("hhhh", 90);
+    CopyFather.laugh();
+    console.log(cf);
+  </script>
+</html>

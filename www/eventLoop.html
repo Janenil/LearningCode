@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>事件轮询</title>
+</head>
+<body>
+    <div class="wrapper">
+        <button id="button" onclick="start()">start</button>
+        <div>event-loop</div>
+        <p>宏任务</p>
+        <div class="eg">
+            主代码块
+            setTimeout<br/>
+            setInterval<br/>
+            setImmediate ()-Node<br/>
+            requestAnimationFrame ()-浏览器<br/>
+        </div>
+        <p>结论：先执行主程序，在执行微任务，然后微任务中的微任务，宏任务一个一个（宏任务中的微任务）(如果微任务中有微任务，也会在下一次宏任务执行前执行)， 微任务中的宏任务， 宏任务中的微任务中的宏任务</p>
+        <p>顺序:<span id="history"></span></p>
+        <!-- <p>setInterval:<span class="setInterval"></span></p> -->
+        <p>微任务</p>
+        <div class="eg">
+            process.nextTick ()-Node<br/>
+            Promise.then()<br/>
+            catch<br/>
+            finally<br/>
+            Object.observe<br/>
+            MutationObserver<br/>
+        </div>
+
+    </div>
+</body>
+</html>
+
+<style>
+    .wrapper {
+        width: 800px;
+        min-height: 800px;
+        padding: 20px;
+        background-color: #f5f5f5;
+        margin: 100px auto;
+    }
+    .eg {
+        font-size: 12px;
+    }
+</style>
+
+<script>
+    
+
+    var obj = new Object()
+    var text = '-'
+    var _history = []
+
+Object.defineProperty(obj, 'text', {
+    get: function() {
+        return text
+    },
+    set: function(newV) {
+        text = newV
+        change(text)
+    }
+})
+
+function change(text) {
+    _history.push(text)
+    let _container = document.getElementById('history');
+    document.getElementById('history').innerHTML = null
+    _history.forEach((item, index) => {
+        // innerHTML += '<span>我是一个小测试</span>'
+        
+        _container.innerHTML += `<br/><span>${index}: ${item}</span>`
+    })
+    // console.log(_container)
+}
+
+function start() {
+    // console.log('111111')
+    // let promise = new Promise()
+    obj.text = '第一次点对象赋值'
+    setTimeout(() => {
+        obj.text = 'setTimeout-1宏任务'
+        setTimeout(() => {
+            obj.text = '1: 宏任务 ---------> 宏任务'
+        }, 0)
+        _promise('setTimeout-1中的微任务').then((text) => {
+            obj.text = text
+            _promise('宏 -> 微 -> 微').then((text) => {
+                obj.text = text
+            })
+            setTimeout(() => {
+                obj.text = '1: 宏任务 ---------> 微任务 ---------> 宏任务2'
+            }, 0)
+        })
+
+    },0)
+    obj.text = 'after-setTimeout-1'
+
+    try {
+        obj.text = 'try'
+        console.log(bbbbbb)
+    } catch(err){
+        obj.text = 'catch'
+    }
+    obj.text = 'after-try-catch'
+
+    _promise('微任务').then((text) => {
+        obj.text = text
+        _promise('微任务中的微任务').then((text) => {
+            obj.text = text
+            _promise('微任务中的微任务的微任务').then((text) => {
+                obj.text = text
+                _promise('微任务中的微任务的微任务的微任务').then((text) => {
+                    obj.text = text
+                })
+            })
+        })
+        setTimeout(() => {
+            obj.text = '1: 微任务中的宏任务'
+        }, 0)
+    }).finally(() => {
+        // obj.text = 'finally + 微任务'
+    })
+    obj.text = 'after-promise'
+    setTimeout(() => {
+        obj.text = 'setTimeout-2宏任务'
+        setTimeout(() => {
+            obj.text = '2: 宏任务 ---------> 宏任务'
+        }, 0)
+        _promise('2:setTimeout宏任务中的微任务').then((text) => {
+            obj.text = text
+            setTimeout(() => {
+                obj.text = '2: 宏任务 ---------> 微任务 ---------> 宏任务2'
+            }, 0)
+        })
+
+    },0)
+    obj.text = 'after-setTimeout-2'
+
+    start_next()
+
+}
+
+function start_next() {
+    // console.log('111111')
+    // let promise = new Promise()
+    obj.text = '第一次点对象赋值_next'
+    setTimeout(() => {
+        obj.text = 'setTimeout-1宏任务_next'
+        setTimeout(() => {
+            obj.text = '1next: 宏任务 ---------> 宏任务'
+        }, 0)
+        _promise('setTimeout-1——next中的微任务').then((text) => {
+            obj.text = text
+            
+            _promise('next + 宏 -> 微 -> 微').then((text) => {
+                obj.text = text
+            })
+            setTimeout(() => {
+                obj.text = '3: 宏任务 ---------> 微任务 ---------> 宏任务2'
+            }, 0)
+        })
+
+    },0)
+    obj.text = 'after-setTimeout-1_next'
+
+    try {
+        obj.text = 'try_next'
+        console.log(bbbbbb)
+    } catch(err){
+        obj.text = 'catch_next'
+    }
+    obj.text = 'after-try-catch_next'
+
+    _promise('微任务_next').then((text) => {
+        obj.text = text
+        _promise('微任务_next中的微任务').then((text) => {
+            obj.text = text
+            _promise('微任务_next中的微任务的微任务').then((text) => {
+                obj.text = text
+                _promise('微任务_next中的微任务的微任务的微任务').then((text) => {
+                    obj.text = text
+                })
+            })
+        })
+
+        setTimeout(() => {
+            obj.text = '2: 微任务中的宏任务'
+        }, 0)
+    }).finally(() => {
+        // obj.text = 'finally + 微任务_next'
+    })
+    obj.text = 'after-promise_next'
+    setTimeout(() => {
+        obj.text = 'setTimeout-2宏任务_next'
+        setTimeout(() => {
+            obj.text = '2next: 宏任务 ---------> 宏任务'
+        }, 0)
+        _promise('setTimeout-2——next中的微任务1').then((text) => {
+            obj.text = text
+            setTimeout(() => {
+                obj.text = '4: 宏任务 ---------> 微任务 ---------> 宏任务2'
+            }, 0)
+        })
+        _promise('setTimeout-2——next中的微任务2').then((text) => {
+            obj.text = text
+            setTimeout(() => {
+                obj.text = '5: 宏任务 ---------> 微任务 ---------> 宏任务2'
+            }, 0)
+        })
+        _promise('setTimeout-2——next中的微任务3').then((text) => {
+            obj.text = text
+            setTimeout(() => {
+                obj.text = '6: 宏任务 ---------> 微任务 ---------> 宏任务2'
+            }, 0)
+        })
+    },0)
+    obj.text = 'after-setTimeout-2_next'
+
+}
+function _promise (key) {
+    return new Promise((resolve, reject) => {
+        // obj.text = 'promise'
+        resolve(`then + ${key}`)
+    })
+}
+(function () {
+        document.getElementById('button').click()
+    })()
+</script>

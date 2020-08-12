@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>事件流</title>
+</head>
+<body>
+    <p>冒泡</p>
+    <div class="wrapper" onclick="wrapper_click()">
+        wrapper
+        <div class="inner" onclick="inner_click()">
+            inner
+            <div class="in" onclick="in_click()">in</div>
+        </div>
+    </div>
+    <div class="result_wrapper">冒泡结果：<span id="result"></span></div>
+
+    <p>捕获</p>
+    <div class="wrapper" onclick="wrapper_click_1()">
+        wrapper1
+        <div class="inner" onclick="inner_click_1()">
+            inner1
+            <div class="in" onclick="in_click_1()">in1</div>
+        </div>
+    </div>
+    <div class="result_wrapper_1">捕获结果：<span id="result1"></span></div>
+   
+    <!-- <p>事件代理</p> -->
+
+</body>
+
+<style>
+    .wrapper1,
+    .wrapper {
+        width: 800px;
+        /* height: 100px; */
+        margin: 20px auto;
+        background-color: #e6e6e6;
+        text-align: center;
+        /* justify-content: center; */
+        /* align-items: center; */
+    }
+    p {
+        /* display: inline-block; */
+        text-align: center;
+        margin-top: 50px;
+    }
+    div {
+        text-align: center;
+    }
+    .result_wrapper,
+    .result_wrapper_1 {
+        width: 400px;
+        margin: 20px auto;
+        text-align: left;
+    }
+</style>
+<script>
+    let wrapperDom = document.getElementsByClassName('wrapper')[0];
+    let inDom = document.getElementsByClassName('in')[0]
+    let innerDom = document.getElementsByClassName('inner')[0]
+
+
+    let wrapperDom1 = document.getElementsByClassName('wrapper')[1];
+    let inDom1 = document.getElementsByClassName('in')[1]
+    let innerDom1 = document.getElementsByClassName('inner')[1]
+
+    let resultDom = document.getElementById('result');
+    let resultDom1 = document.getElementById('result1');
+
+    let obj = {}
+    let obj1 = {}
+    // let result = []
+    // function clicked(e) {
+    //     var e=e||window.event;         
+    //     console.log('wrapper')
+    //     obj.result = 'wrapper'
+    // }
+    function wrapper_click() {
+        console.log('wrapper_click')
+        obj.result = '普通事件：wrapper_click'
+    }
+    function inner_click() {
+        console.log('inner_click')
+        obj.result = '普通事件：inner_click'
+    }
+    function in_click() {
+        console.log('in_click')
+        obj.result = '普通事件：in_click'
+    }
+    
+    function wrapper_click_1() {
+        console.log('wrapper_click')
+        obj1.result = '普通事件：wrapper_click1'
+    }
+    function inner_click_1() {
+        console.log('inner_click')
+        obj1.result = '普通事件：inner_click1'
+    }
+    function in_click_1() {
+        console.log('in_click')
+        obj1.result = '普通事件：in_click1'
+    }
+    
+    function clicked(e) {
+        // e.stopPropagation();
+        
+        console.log('事件绑定：', e.target.className)
+        obj.result = `事件绑定：${e.target.className}
+        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+        当前：${e.currentTarget.className}`
+    }
+    function clicked_1(e) {
+        // e.stopPropagation();
+        console.log('事件绑定：', e.target.className)
+        // obj1.result = `事件绑定：${e.target.className}`
+        obj1.result = `事件绑定：${e.target.className}
+        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+        当前： ${e.currentTarget.className}`
+        // if (e.currentTarget.className === 'wrapper') {
+            // e.stopPropagation();
+        // }
+    }
+    
+    
+    wrapperDom.addEventListener('click', clicked, false)
+    innerDom.addEventListener('click', clicked, false)
+    inDom.addEventListener('click', clicked, false)
+
+    wrapperDom1.addEventListener('click', clicked_1, true)
+    innerDom1.addEventListener('click', clicked_1, true)
+    // inDom1.addEventListener('click', clicked_2, false)
+    inDom1.addEventListener('click', clicked_1, true)
+    // inDom.onclick = test3;
+    // innerDom.onclick = test2;
+
+    Object.defineProperty(obj, 'result', {
+        set(value){
+            result = value;
+            resultDom.innerHTML += `</br><span> ${result}</span>`
+        },
+        get:() => {
+            return result;
+        },
+    })
+
+
+
+    // let dom1 = document.getElementsByClassName('wrapper1')[0];
+    // let indom1 = document.getElementsByClassName('in1')[0]
+    // let innerdom1 = document.getElementsByClassName('inner1')[0]
+    // let resultDom1 = document.getElementById('result1');
+
+    // let obj1 = {}
+    // let result1 = []
+    // function clicked_1(e) {
+    //     var e=e||window.event;         
+    //     obj1.result = 'wrapper1'
+    //     console.log('wrapper1')
+    // }
+    // function test_2() {
+    //     obj1.result = 'inner1'
+    //     console.log('inner1')
+    // }
+    // function test_3(e) {
+    //     console.log('in1')
+    //     obj1.result = 'in1'
+
+    // }
+    // dom1.addEventListener('click', clicked_1, true)
+
+    // indom1.onclick = test_3;
+    // innerdom1.onclick = test_2;
+
+
+    Object.defineProperty(obj1, 'result', {
+        set(value){
+            result = value;
+            resultDom1.innerHTML += `</br><span> ${result}</span>&nbsp&nbsp`
+        },
+        get:() => {
+            return result;
+        },
+    })
+
+</script>
+</html>

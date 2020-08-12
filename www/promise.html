@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>promise</title>
+  </head>
+  <body>
+    <div>promise</div>
+    <p>pending：等待</p>
+    <p>fulfilled：完成</p>
+    <p>rejected：拒绝</p>
+  </body>
+  <script>
+    // todo
+    const stateArr = ["pending", "fulfilled", "rejected"];
+    const promise = new Promise((resolve, reject) => {
+      try {
+        reject("reject");
+
+        resolve("resolve");
+      } catch (err) {}
+    });
+    promise
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+    class myPromise {
+      constructor(callback) {
+        this.state = stateArr[0];
+        this.value = null;
+        this.reason = null;
+        callback(this.resolve, this.reject);
+      }
+      resolve = (value) => {
+        if (this.state === stateArr[0]) {
+          this.state = stateArr[1];
+          this.value = value;
+        }
+      };
+      reject = (reason) => {
+        if (this.state === stateArr[0]) {
+          this.state = stateArr[2];
+          this.reason = reason;
+        }
+      };
+
+      then = (onFulfilled, onRejected) => {
+        onFulfilled =
+          typeof onFulfilled === "function" ? onFulfilled : (value) => value;
+        onRejected =
+          typeof onRejected === "function" ? onRejected : (reason) => reason;
+
+        if (this.state === stateArr[1]) {
+          return new myPromise((resolve, reject) => {
+            try {
+              const result = onFulfilled(this.value);
+              if (result instanceof myPromise) {
+                result.then(resolve, reject);
+              } else {
+                resolve(result);
+              }
+            } catch (err) {
+              reject(err);
+            }
+          });
+        }
+
+        if (this.state === stateArr[2]) {
+          return new myPromise((resolve, reject) => {
+            try {
+              const result = onRejected(this.reason);
+              if (result instanceof myPromise) {
+                result.then(resolve, reject);
+              } else {
+                resolve(result);
+              }
+            } catch (err) {
+              reject(err);
+            }
+          });
+        }
+      };
+    }
+
+    var test = new myPromise((resolve, reject) => {
+      console.log("my promise is running");
+      reject("2");
+    });
+    test.then((res) => {
+      console.log("res", res);
+    });
+
+    console.log(test);
+  </script>
+</html>
